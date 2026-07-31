@@ -1,8 +1,8 @@
-# Elements Invoice — one invoice, three fitted renders
+# Invoice Studio — one invoice, three fitted renders
 
-A contractor invoice built as a single [Unlayer Elements](https://github.com/unlayer/elements) component tree that renders three ways: an **email** the client receives, a **web page** they can open, and a **PDF** everyone files for accounting. The point isn't that the same design renders three times — it's that each render is deliberately fitted to what its medium can actually do, all from one tree.
+A contractor invoice builder, and the template engine under it, built on [Unlayer Elements](https://github.com/unlayer/elements). You fill in the invoice on the left and watch it render live as an **email**, a **web page**, and a **PDF** on the right — all from a single component tree. The point isn't that the same design renders three times, it's that each render is deliberately fitted to what its medium can actually do.
 
-Built for the **[Build with Elements Challenge](https://unlayer.com)** · `#BuiltWithElements`
+**▶ Live app: [elements-invoice.pages.dev](https://elements-invoice.pages.dev/)** · Built for the **Build with Elements Challenge** · `#BuiltWithElements`
 
 <table>
 <tr>
@@ -16,6 +16,21 @@ Built for the **[Build with Elements Challenge](https://unlayer.com)** · `#Buil
 <td valign="top"><img src="docs/showcase/dev-hourly.document.png" alt="Invoice rendered as a PDF"></td>
 </tr>
 </table>
+
+## The app
+
+[![Invoice Studio](docs/showcase/app-editor.png)](https://elements-invoice.pages.dev/)
+
+Invoice Studio is a single-page builder with the editor on the left and a live preview on the right. Every keystroke re-renders the invoice through Elements into an iframe, and the **Email / Web / PDF** tabs let you flip between the three renders of the exact invoice you're editing — which is the whole Elements story made interactive, since most invoice tools only ever hand you a PDF. You can load one of three sample freelancers to start from, edit every field, download the HTML for any mode, and download the PDF straight from the browser's print dialog. There's no backend, no signup, and nothing leaves the page.
+
+It reuses the template engine below untouched — the app is a thin editor and preview shell around the same `builders`, `computeTotals`, and adapters that the command-line renderer uses.
+
+```bash
+npm install
+npm run dev        # opens the app on localhost
+```
+
+There's also an optional "draft from notes" box that turns a freeform line like *"api work tues–thurs ~14h, plus the logo redesign flat 5k"* into editable line items with DeepSeek. It's gated behind a key you enter yourself, off by default, and it never touches the totals, since an invoice is a legal document and I wouldn't trust un-reviewed model output to do the math on one.
 
 ## Why an invoice
 
@@ -67,6 +82,7 @@ raw input → adapter → InvoiceData → computeTotals() → entry composes sec
 - **`src/compute.ts`** does all the money math in integer minor units (cents), never floating point, and rounds each line once so the printed column always adds up to the printed subtotal. It's the most-tested file in the repo.
 - **`src/sections/`** are the reusable pieces — header, parties, line items, totals, payment block — each a function that takes `(data, mode)` and returns Elements `<Row>`s. All the per-medium divergence lives here, keyed off `mode`.
 - **`src/entries/invoice.tsx`** has the three builders side by side. Each wraps the *same* section calls in `<Email>` / `<Page>` / `<Document>`. Reading that one file is the quickest way to see that it really is one tree fitted three ways.
+- **`app/`** is the Vite React app — an editor and a live iframe preview that call the same builders. It imports the engine directly and adds no rendering logic of its own, so the app and the batch renderer always produce identical output.
 
 One thing worth flagging for anyone building on Elements: `renderToHtml` picks the output shell from the root element's `displayName`, so you have to hand it an `<Email>` / `<Page>` / `<Document>` element directly. Wrap the tree in a component of your own and you silently get the web shell instead. That's why the entries are builder functions returning the wrapper, not React components.
 
@@ -76,12 +92,14 @@ Requires Node 22+.
 
 ```bash
 npm install
-npx playwright install chromium   # only needed for the PDF + screenshot steps
-npm run render                    # writes out/*.html, out/*.pdf, out/screenshots/*.png
+npm run dev                       # the app on localhost
+
+npm run render                    # batch: writes out/*.html, out/*.pdf, out/screenshots/*.png
 npm test                          # 43 tests: money math, adapters, render contract
+npm run build                     # static build of the app → dist/
 ```
 
-`npm run render` regenerates every artifact for all three personas. Open any file in `out/` to see the result — the `.email.html` files are what an email client receives, the `.web.html` files are the hosted page, and the `.pdf` files are print-ready.
+Two ways to use it. `npm run dev` opens Invoice Studio for interactive editing. `npm run render` is the headless batch path — it regenerates every artifact for all three personas into `out/`, which is what the screenshots in this README come from and what a CI job would run. The `.email.html` files are what an email client receives, the `.web.html` files are the hosted page, and the `.pdf` files are print-ready. The batch PDF + screenshot steps need Chromium (`npx playwright install chromium`); the app's own "Download PDF" uses your browser's print dialog and needs nothing.
 
 ## Data adapters
 
@@ -93,7 +111,7 @@ npm test                          # 43 tests: money math, adapters, render contr
 
 ## Tech
 
-TypeScript, React 18, [`@unlayer/react-elements`](https://github.com/unlayer/elements) for the rendering, Playwright for the HTML-to-PDF step and screenshots, Vitest for tests. Elements does the hard part — email-safe HTML, responsive web, and print HTML from one component tree — and the only thing it doesn't do is the final PDF conversion, which is a few lines of Playwright here since the library stops at print-ready HTML by design.
+TypeScript, React 18, Vite for the app, [`@unlayer/react-elements`](https://github.com/unlayer/elements) for the rendering, Playwright for the batch HTML-to-PDF step and screenshots, Vitest for tests, deployed on Cloudflare Pages. Elements does the hard part — email-safe HTML, responsive web, and print HTML from one component tree — and the only thing it doesn't do is the final PDF conversion, which the app hands to the browser's print dialog and the batch renderer hands to Playwright, since the library stops at print-ready HTML by design.
 
 ## License
 
