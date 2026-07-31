@@ -4,6 +4,7 @@ import { minorToMajor, majorToMinor } from "../money.js";
 import { SAMPLES, BLANK } from "../samples.js";
 import { AiDraft } from "./AiDraft.js";
 import { Collapsible } from "./Collapsible.js";
+import { Section } from "./Section.js";
 
 interface Props {
   data: InvoiceData;
@@ -36,7 +37,6 @@ export function Editor({ data, onChange }: Props) {
 
   return (
     <div className="editor">
-      {/* Quiet toolbar */}
       <div className="editor-toolbar">
         <select
           value=""
@@ -52,80 +52,79 @@ export function Editor({ data, onChange }: Props) {
             </option>
           ))}
         </select>
-        <button className="link-btn" onClick={() => onChange(structuredClone(BLANK))}>
+        <button className="btn sm" onClick={() => onChange(structuredClone(BLANK))}>
           Start blank
         </button>
       </div>
 
-      {/* Meta strip — two clean rows */}
-      <div className="grid-2 meta-row">
-        <Labeled label="Invoice number">
-          <input value={data.number} onChange={(e) => patch({ number: e.target.value })} />
-        </Labeled>
-        <Labeled label="Currency">
-          <select
-            value={data.currency}
-            onChange={(e) =>
-              patch({ currency: e.target.value, currencySymbol: CURRENCIES[e.target.value] ?? "$" })
-            }
-          >
-            {Object.keys(CURRENCIES).map((c) => (
-              <option key={c} value={c}>
-                {c} ({CURRENCIES[c]})
-              </option>
-            ))}
-          </select>
-        </Labeled>
-      </div>
-      <div className="grid-2 meta-row">
-        <Labeled label="Issued">
-          <input
-            type="date"
-            value={data.issueDate}
-            onChange={(e) => patch({ issueDate: e.target.value })}
-          />
-        </Labeled>
-        <Labeled label="Due">
-          <input
-            type="date"
-            value={data.dueDate}
-            onChange={(e) => patch({ dueDate: e.target.value })}
-          />
-        </Labeled>
-      </div>
+      <Section title="Invoice details">
+        <div className="grid-2">
+          <Labeled label="Invoice number">
+            <input value={data.number} onChange={(e) => patch({ number: e.target.value })} />
+          </Labeled>
+          <Labeled label="Currency">
+            <select
+              value={data.currency}
+              onChange={(e) =>
+                patch({
+                  currency: e.target.value,
+                  currencySymbol: CURRENCIES[e.target.value] ?? "$",
+                })
+              }
+            >
+              {Object.keys(CURRENCIES).map((c) => (
+                <option key={c} value={c}>
+                  {c} ({CURRENCIES[c]})
+                </option>
+              ))}
+            </select>
+          </Labeled>
+          <Labeled label="Issued">
+            <input
+              type="date"
+              value={data.issueDate}
+              onChange={(e) => patch({ issueDate: e.target.value })}
+            />
+          </Labeled>
+          <Labeled label="Due">
+            <input
+              type="date"
+              value={data.dueDate}
+              onChange={(e) => patch({ dueDate: e.target.value })}
+            />
+          </Labeled>
+        </div>
+      </Section>
 
-      {/* Parties */}
-      <div className="grid-2 parties">
-        <PartyFields label="From" party={data.from} onChange={(from) => patch({ from })} />
-        <PartyFields label="Bill to" party={data.billTo} onChange={(billTo) => patch({ billTo })} />
-      </div>
+      <Section title="Parties">
+        <div className="grid-2">
+          <PartyFields label="From" party={data.from} onChange={(from) => patch({ from })} />
+          <PartyFields label="Bill to" party={data.billTo} onChange={(billTo) => patch({ billTo })} />
+        </div>
+      </Section>
 
-      {/* Line items — the centrepiece */}
-      <div className="items-head">
-        <span>Line items</span>
-        <span className="muted-note">hourly or fixed</span>
-      </div>
-      <div className="items">
-        {data.lineItems.map((item, i) => (
-          <LineItemFields
-            key={i}
-            item={item}
-            onChange={(l) => setLine(i, l)}
-            onRemove={() => removeLine(i)}
-            canRemove={data.lineItems.length > 1}
-          />
-        ))}
-      </div>
-      <button className="add-line" onClick={addLine}>
-        + Add line
-      </button>
+      <Section title="Line items" aside={`${data.lineItems.length} line${data.lineItems.length === 1 ? "" : "s"}`}>
+        <div className="items">
+          {data.lineItems.map((item, i) => (
+            <LineItemFields
+              key={i}
+              item={item}
+              onChange={(l) => setLine(i, l)}
+              onRemove={() => removeLine(i)}
+              canRemove={data.lineItems.length > 1}
+            />
+          ))}
+        </div>
+        <button className="btn dashed full" onClick={addLine}>
+          + Add line
+        </button>
+      </Section>
 
-      {/* Optional, tucked away */}
       <Collapsible title="Discount, tax & deposit" hint={adjustmentsHint(data)}>
         <div className="grid-2">
-          <Labeled label="Discount (e.g. 10% or 500)">
+          <Labeled label="Discount">
             <input
-              placeholder="none"
+              placeholder="10% or 500"
               value={discountToStr(data)}
               onChange={(e) => patch({ discount: parseDiscount(e.target.value) })}
             />
@@ -143,7 +142,7 @@ export function Editor({ data, onChange }: Props) {
           </Labeled>
           <Labeled label="Tax label">
             <input
-              placeholder="e.g. VAT (20%)"
+              placeholder="VAT (20%)"
               value={data.tax?.label ?? ""}
               onChange={(e) =>
                 patch({
@@ -173,8 +172,11 @@ export function Editor({ data, onChange }: Props) {
         </div>
       </Collapsible>
 
-      <Collapsible title="Payment & notes" hint={data.payment?.reference ? `ref ${data.payment.reference}` : undefined}>
-        <Labeled label="Payment details (one line per row)">
+      <Collapsible
+        title="Payment & notes"
+        hint={data.payment?.reference ? `ref ${data.payment.reference}` : undefined}
+      >
+        <Labeled label="Payment details">
           <textarea
             placeholder="Bank transfer — HSBC HK&#10;Acct 000-123456-001"
             value={(data.payment?.lines ?? []).join("\n")}
@@ -214,7 +216,7 @@ export function Editor({ data, onChange }: Props) {
         </Labeled>
       </Collapsible>
 
-      <Collapsible title="Draft line items from notes" hint="AI · optional">
+      <Collapsible title="Draft line items from notes" hint="optional">
         <AiDraft
           onDraft={(items) => patch({ lineItems: items })}
           defaultRate={firstRate(data)}
@@ -225,7 +227,7 @@ export function Editor({ data, onChange }: Props) {
   );
 }
 
-/* ---- small building blocks ---- */
+/* ---- building blocks ---- */
 
 function Labeled({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -290,12 +292,20 @@ function LineItemFields({
         />
         {canRemove && (
           <button className="remove" onClick={onRemove} title="Remove line" aria-label="Remove line">
-            ×
+            <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         )}
       </div>
       <div className="item-controls">
-        <div className="kind-toggle">
+        <div className="segmented sm">
           <button
             className={item.kind === "hourly" ? "active" : ""}
             onClick={() =>
@@ -308,7 +318,8 @@ function LineItemFields({
           <button
             className={item.kind === "fixed" ? "active" : ""}
             onClick={() =>
-              item.kind !== "fixed" && onChange({ kind: "fixed", description: item.description, amount: 0 })
+              item.kind !== "fixed" &&
+              onChange({ kind: "fixed", description: item.description, amount: 0 })
             }
           >
             Fixed
