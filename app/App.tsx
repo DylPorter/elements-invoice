@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import type { InvoiceData, RenderMode } from "../src/types.js";
-import { devHourly } from "../samples/dev-hourly.js";
 import { Editor } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
+import { freshInvoice } from "./samples.js";
 
 export function App() {
-  const [data, setData] = useState<InvoiceData>(() => structuredClone(devHourly));
+  const [data, setData] = useState<InvoiceData>(() => freshInvoice());
   const [mode, setMode] = useState<RenderMode>("email");
   const [toast, setToast] = useState<string | null>(null);
 

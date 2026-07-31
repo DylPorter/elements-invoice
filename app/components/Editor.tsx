@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { InvoiceData, LineItem } from "../../src/types.js";
 import { minorToMajor, majorToMinor } from "../money.js";
-import { SAMPLES, BLANK } from "../samples.js";
+import { SAMPLES, freshInvoice } from "../samples.js";
 import { AiDraft } from "./AiDraft.js";
 import { Collapsible } from "./Collapsible.js";
 import { Section } from "./Section.js";
@@ -52,12 +52,12 @@ export function Editor({ data, onChange }: Props) {
             </option>
           ))}
         </select>
-        <button className="btn sm" onClick={() => onChange(structuredClone(BLANK))}>
+        <button className="btn sm" onClick={() => onChange(freshInvoice())}>
           Start blank
         </button>
       </div>
 
-      <Section title="Invoice details">
+      <Collapsible title="Invoice details" hint={invoiceHint(data)}>
         <div className="grid-2">
           <Labeled label="Invoice number">
             <input value={data.number} onChange={(e) => patch({ number: e.target.value })} />
@@ -94,7 +94,7 @@ export function Editor({ data, onChange }: Props) {
             />
           </Labeled>
         </div>
-      </Section>
+      </Collapsible>
 
       <Section title="Parties">
         <div className="grid-2">
@@ -364,6 +364,18 @@ function LineItemFields({
 }
 
 /* ---- helpers ---- */
+/** Collapsed "Invoice details" summary, e.g. "2026-047 · HKD · due 26 Jul". */
+function invoiceHint(data: InvoiceData): string {
+  const due = prettyDate(data.dueDate);
+  return [data.number, data.currency, due && `due ${due}`].filter(Boolean).join(" · ");
+}
+function prettyDate(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(`${iso}T00:00:00`);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
 function adjustmentsHint(data: InvoiceData): string | undefined {
   const bits: string[] = [];
   if (data.discount) bits.push("discount");

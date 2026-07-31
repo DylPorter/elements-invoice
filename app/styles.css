@@ -77,7 +77,7 @@ body {
 
 .workbench {
   display: grid;
-  grid-template-columns: minmax(380px, 440px) 1fr;
+  grid-template-columns: minmax(440px, 560px) 1fr;
   flex: 1;
   min-height: 0;
 }
@@ -85,13 +85,13 @@ body {
 
 .editor {
   overflow-y: auto;
-  padding: 16px;
+  padding: 22px;
   background: var(--muted);
   border-right: 1px solid var(--border);
   max-height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 @media (max-width: 900px) { .editor { max-height: none; } }
 
@@ -112,26 +112,26 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 14px;
+  padding: 15px 18px;
   width: 100%;
 }
 .card-head h2 {
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 600;
   margin: 0;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
   color: var(--foreground);
 }
 .card-aside {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--muted-foreground);
   font-weight: 400;
 }
 .card-body {
-  padding: 0 14px 14px;
+  padding: 0 18px 18px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Collapsible variant: header is a button, rule appears when open */
@@ -155,7 +155,7 @@ body {
 .collapsible.open .chevron { transform: rotate(180deg); }
 .collapsible.open .card-body {
   border-top: 1px solid var(--border);
-  padding-top: 14px;
+  padding-top: 16px;
 }
 
 /* ---------- Form controls ---------- */
@@ -163,11 +163,11 @@ body {
 .editor select,
 .editor textarea {
   width: 100%;
-  padding: 7px 10px;
+  padding: 9px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--foreground);
   background: var(--background);
   transition: border-color 0.12s, box-shadow 0.12s;
@@ -190,23 +190,23 @@ body {
 .labeled { display: block; min-width: 0; }
 .labeled > span {
   display: block;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--muted-foreground);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   font-weight: 500;
 }
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 /* ---------- Toolbar ---------- */
 .editor-toolbar { display: flex; align-items: center; gap: 8px; }
 .editor-toolbar select {
   flex: 1;
-  padding: 7px 10px;
+  padding: 9px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 14px;
   background: var(--background);
   color: var(--foreground);
   cursor: pointer;
@@ -227,11 +227,11 @@ body {
 .party textarea { min-height: 42px; font-size: 13px; color: var(--muted-foreground); }
 
 /* ---------- Line items ---------- */
-.items { display: grid; gap: 8px; }
+.items { display: grid; gap: 10px; }
 .item {
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px;
+  padding: 12px;
   background: var(--muted);
 }
 .item-top { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }

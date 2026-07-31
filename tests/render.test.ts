@@ -35,11 +35,14 @@ describe("render — every persona × mode produces the right shell", () => {
 });
 
 describe("render — mode-specific divergences are present", () => {
-  it("email is summary (no per-unit rate hint), web/document show it", () => {
+  it("every mode shows the per-unit rate hint on hourly lines", () => {
     const email = renderToHtml(builders.email(devHourly));
     const web = renderToHtml(builders.web(devHourly));
-    expect(email).not.toContain("&times;");
-    expect(web).toContain("h &times;"); // "12.0 h × HK$300"
+    const doc = renderToHtml(builders.document(devHourly));
+    // "12.0 h × HK$300" — the breakdown now appears in the inbox render too.
+    expect(email).toContain("h &times;");
+    expect(web).toContain("h &times;");
+    expect(doc).toContain("h &times;");
   });
 
   it("document has no clickable pay button; email does", () => {

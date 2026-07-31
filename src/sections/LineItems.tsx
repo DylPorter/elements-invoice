@@ -1,11 +1,9 @@
 /**
  * LineItems — the billed work, as Row+Column (never <Table>).
  *
- *  email    : summary — description + amount only. The inbox render's job is to
- *             get them to pay, not to be the auditable record; per-unit rates
- *             are one tap away in the web/PDF copy.
- *  web/doc  : full breakdown — each hourly line shows "12.0 h × 300" so the
- *             number is justified. Document adds a column-header row and 2dp.
+ * Every mode shows the full breakdown — each hourly line renders
+ * "12.0 h × 300" beside its description so the amount is always justified,
+ * inbox included. Document additionally gets a column-header row and 2dp.
  */
 import { Column, ColumnLayouts, Paragraph, Row } from "@unlayer/react-elements";
 import type { ReactElement } from "react";
@@ -14,7 +12,7 @@ import { theme } from "../theme.js";
 import type { InvoiceData, InvoiceTotals, LineItem, RenderMode } from "../types.js";
 import { hairline, pad } from "../ui.js";
 
-/** "12.0 h × HK$300" style hint for hourly lines (web/document only). */
+/** "12.0 h × HK$300" style hint for hourly lines (all modes). */
 function rateHint(item: LineItem, symbol: string): string {
   if (item.kind !== "hourly") return item.category ? item.category : "";
   const hrs = Number.isInteger(item.hours) ? `${item.hours}.0` : String(item.hours);
@@ -27,7 +25,7 @@ export function lineItems(
   mode: RenderMode,
 ): ReactElement[] {
   const rows: ReactElement[] = [];
-  const showDetail = mode !== "email";
+  const showDetail = true; // every mode shows the per-unit breakdown, inbox included
   const dp = mode === "document" ? 2 : "auto";
 
   // Document gets a column-header row for legibility as a filed record.
