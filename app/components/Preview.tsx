@@ -26,15 +26,17 @@ export function Preview({ data, mode, onModeChange, onToast }: Props) {
   return (
     <div className="preview">
       <div className="tabbar">
-        {TABS.map((t) => (
-          <button
-            key={t.mode}
-            className={`tab ${t.mode === mode ? "active" : ""}`}
-            onClick={() => onModeChange(t.mode)}
-          >
-            {t.label}
-          </button>
-        ))}
+        <div className="modes" role="tablist">
+          {TABS.map((t) => (
+            <button
+              key={t.mode}
+              className={`tab ${t.mode === mode ? "active" : ""}`}
+              onClick={() => onModeChange(t.mode)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
         <span className="tab-note">{TABS.find((t) => t.mode === mode)?.note}</span>
         <span className="spacer" />
         <button

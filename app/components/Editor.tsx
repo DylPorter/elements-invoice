@@ -57,9 +57,9 @@ export function Editor({ data, onChange }: Props) {
         </button>
       </div>
 
-      {/* Meta strip */}
-      <div className="grid-4">
-        <Labeled label="Invoice #">
+      {/* Meta strip — two clean rows */}
+      <div className="grid-2 meta-row">
+        <Labeled label="Invoice number">
           <input value={data.number} onChange={(e) => patch({ number: e.target.value })} />
         </Labeled>
         <Labeled label="Currency">
@@ -71,11 +71,13 @@ export function Editor({ data, onChange }: Props) {
           >
             {Object.keys(CURRENCIES).map((c) => (
               <option key={c} value={c}>
-                {c}
+                {c} ({CURRENCIES[c]})
               </option>
             ))}
           </select>
         </Labeled>
+      </div>
+      <div className="grid-2 meta-row">
         <Labeled label="Issued">
           <input
             type="date"
