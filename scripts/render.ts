@@ -54,6 +54,9 @@ async function main() {
   }
   console.log(`✓ wrote ${artifacts.length} HTML files to out/`);
 
+  // A small index so the outputs are clickable in a browser.
+  await writeFile(join(OUT, "index.html"), buildIndex(), "utf8");
+
   // 2. Playwright: PDFs (document mode) + screenshots (all modes).
   let browser: Browser | undefined;
   try {
@@ -92,6 +95,43 @@ async function main() {
   } finally {
     await browser.close();
   }
+}
+
+/** A plain contact-sheet index linking every artifact, for local review. */
+function buildIndex(): string {
+  const cellFor = (slug: string, mode: RenderMode) => {
+    const html = `${slug}.${mode}.html`;
+    const pdf = mode === "document" ? ` &nbsp;·&nbsp; <a href="${slug}.pdf">pdf</a>` : "";
+    const label = mode === "document" ? "PDF (document)" : mode;
+    return `<td><a href="${html}">${label}</a>${pdf}</td>`;
+  };
+  const rows = PERSONAS.map(
+    ({ slug, data }) =>
+      `<tr><th>${data.from.name}<br><small>${slug}</small></th>` +
+      MODES.map((m) => cellFor(slug, m)).join("") +
+      `</tr>`,
+  ).join("\n");
+
+  return `<!doctype html>
+<meta charset="utf-8">
+<title>Elements Invoice — local preview</title>
+<style>
+  body { font: 15px/1.5 -apple-system, Segoe UI, Roboto, sans-serif; max-width: 760px; margin: 48px auto; padding: 0 20px; color: #0d1b2a; }
+  h1 { letter-spacing: -0.02em; } small { color: #6b7a8d; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #e4e9ef; padding: 12px 14px; text-align: left; vertical-align: top; }
+  th { background: #f6f8fa; font-weight: 600; }
+  a { color: #0d1b2a; font-weight: 600; } a:hover { color: #1f9d55; }
+  thead th { text-transform: uppercase; font-size: 12px; letter-spacing: 0.06em; color: #6b7a8d; }
+</style>
+<h1>Elements Invoice — local preview</h1>
+<p><small>One component tree, three fitted renders. Click any cell. Email views are what an email client receives; document links open the print HTML, with the real PDF beside it.</small></p>
+<table>
+  <thead><tr><th>Persona</th><th>Email</th><th>Web</th><th>PDF</th></tr></thead>
+  <tbody>
+${rows}
+  </tbody>
+</table>`;
 }
 
 main().catch((e) => {
