@@ -16,21 +16,12 @@ const KEY_STORE = "elements-invoice.deepseek-key";
  * Off the critical path — the app is fully usable without ever opening this.
  */
 export function AiDraft({ onDraft, defaultRate, minorPerMajor }: Props) {
-  const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState("");
   const [apiKey, setApiKey] = useState(() => localStorage.getItem(KEY_STORE) ?? "");
   const [status, setStatus] = useState<{ kind: "idle" | "loading" | "ok" | "err"; msg: string }>({
     kind: "idle",
     msg: "",
   });
-
-  if (!open) {
-    return (
-      <button className="btn ghost" style={{ width: "100%" }} onClick={() => setOpen(true)}>
-        ✨ Draft from notes (optional, uses DeepSeek)
-      </button>
-    );
-  }
 
   const run = async () => {
     if (!apiKey.trim()) {
@@ -65,29 +56,26 @@ export function AiDraft({ onDraft, defaultRate, minorPerMajor }: Props) {
 
   return (
     <div className="ai-box">
-      <div className="field">
-        <label>Notes</label>
+      <label className="labeled">
+        <span>Notes</span>
         <textarea
           placeholder="api work tues–thurs ~14h, plus the logo redesign flat 5k"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
-      </div>
-      <div className="field">
-        <label>DeepSeek API key (stored locally only)</label>
+      </label>
+      <label className="labeled">
+        <span>DeepSeek API key (stored locally only)</span>
         <input
           type="password"
           placeholder="sk-…"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
         />
-      </div>
+      </label>
       <div className="btn-row">
         <button className="btn accent" onClick={run} disabled={status.kind === "loading"}>
           {status.kind === "loading" ? "Drafting…" : "Draft line items"}
-        </button>
-        <button className="btn ghost" onClick={() => setOpen(false)}>
-          Close
         </button>
       </div>
       {status.msg && (
